@@ -104,3 +104,7 @@ dist
 .tern-port
 
 __pycache__
+
+test.ipynb
+
+firebase_credentials.json

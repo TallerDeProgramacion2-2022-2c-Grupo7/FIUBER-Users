@@ -38,7 +38,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP_NAME }}:latest
       -
         name: Configure kubernetes.yml
-        run: sed -i "s/\$APP_NAME/${{ env.APP_NAME }}/g" ./kubernetes.yml && sed -i "s/\$DOCKERHUB_USERNAME/${{ secrets.DOCKERHUB_USERNAME }}/g" ./kubernetes.yml
+        run: sed -i "s/\$APP_NAME/${{ env.APP_NAME }}/g" ./kubernetes.yml && sed -i "s/\$DOCKERHUB_USERNAME/${{ secrets.DOCKERHUB_USERNAME }}/g" && sed -i "s/\$FIREBASE_CREDENTIALS/${{ secrets.FIREBASE_CREDENTIALS }}/g" ./kubernetes.yml
       -
         name: Debug
         run: cat ./kubernetes.yml

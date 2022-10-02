@@ -14,6 +14,9 @@ spec:
       containers:
       - image: $DOCKERHUB_USERNAME/$APP_NAME
         name: $APP_NAME
+        env:
+      - name: FIREBASE_CREDENTIALS
+        value: $FIREBASE_CREDENTIALS
 
 ---
 

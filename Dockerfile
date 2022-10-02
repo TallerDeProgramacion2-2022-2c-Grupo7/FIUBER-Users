@@ -1,5 +1,5 @@
 FROM python
-RUN pip install fastapi uvicorn
+RUN pip install fastapi uvicorn firebase-admin
 WORKDIR /app
 COPY . .
 WORKDIR /app/src
