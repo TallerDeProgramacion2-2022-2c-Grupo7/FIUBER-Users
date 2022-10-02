@@ -15,18 +15,8 @@ spec:
       - image: $DOCKERHUB_USERNAME/$APP_NAME
         name: $APP_NAME
         env:
-        - name: FIREBASE_PROJECT_ID
-          value: "$FIREBASE_PROJECT_ID"
-        - name: FIREBASE_PRIVATE_KEY_ID
-          value: "$FIREBASE_PRIVATE_KEY_ID"
-        - name: FIREBASE_PRIVATE_KEY
-          value: "$FIREBASE_PRIVATE_KEY"
-        - name: FIREBASE_CLIENT_EMAIL
-          value: "$FIREBASE_CLIENT_EMAIL"
-        - name: FIREBASE_CLIENT_ID
-          value: "$FIREBASE_CLIENT_ID"
-        - name: FIREBASE_CLIENT_X509_CERT_URL
-          value: "$FIREBASE_CLIENT_X509_CERT_URL"
+        - name: FIREBASE_CREDENTIALS
+          value: "$FIREBASE_CREDENTIALS"
 
 ---
 
