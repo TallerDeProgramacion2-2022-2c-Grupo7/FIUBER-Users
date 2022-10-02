@@ -1,11 +1,9 @@
 import os
 from typing import Union
 from fastapi import FastAPI
-from fastapi import Request
 from fastapi import Header
 from fastapi import HTTPException
 from fastapi import status
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
 from firebase_admin import credentials
@@ -13,6 +11,7 @@ from firebase_admin import auth
 from firebase_admin import _auth_utils as auth_utils
 from common.date_utils import get_datetime
 from common.firebase_credentials import admin_credentials
+from middlewares.id_token import IdTokenMiddleware
 
 firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
@@ -24,24 +23,10 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True
 )
 
-@app.middleware("http")
-async def verify_id_token(request: Request, call_next):
-    try:
-        authorization = request.headers["Authorization"]
-        user = auth.verify_id_token(authorization[7:])
-    except (KeyError, TypeError, UnicodeDecodeError, auth_utils.InvalidIdTokenError):
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"detail": "You must be logged in to make this request"}
-        )
-    if not user["admin"]:
-        return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content={"detail": "You must be an admin to make this request"}
-        )
-    return await call_next(request)
+app.add_middleware(IdTokenMiddleware)
 
 @app.get("/")
 async def get_users(
@@ -53,7 +38,7 @@ async def get_users(
     """
     page = auth.list_users(max_results=max_results, page_token=page_token)
     response = {
-        "users": [],
+        "result": [],
         "page_token": page.next_page_token
     }
     for user in page.users:
@@ -61,11 +46,11 @@ async def get_users(
             is_admin = user.custom_claims["admin"]
         except TypeError:
             is_admin = False
-        response["users"].append({
+        response["result"].append({
             "uid": user.uid,
             "email": user.email,
             "is_admin": is_admin,
-            "active": not user.disabled
+            "is_active": not user.disabled
         })
     return response    
 
@@ -88,12 +73,14 @@ async def get_user(uid: str):
     except TypeError:
         is_admin = False
     return {
-        "uid": user.uid,
-        "email": user.email,
-        "is_admin": is_admin,
-        "is_active": not user.disabled,
-        "creation_datetime": creation_datetime,
-        "last_sign_in_datetime": last_sign_in_datetime
+        "result": {
+            "uid": user.uid,
+            "email": user.email,
+            "is_admin": is_admin,
+            "is_active": not user.disabled,
+            "creation_datetime": creation_datetime,
+            "last_sign_in_datetime": last_sign_in_datetime
+        }
     }
 
 @app.patch("/{uid}")
