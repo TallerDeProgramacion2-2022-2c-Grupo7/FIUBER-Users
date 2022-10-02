@@ -1,8 +1,11 @@
 import os
 from typing import Union
 from fastapi import FastAPI
+from fastapi import Request
+from fastapi import Header
 from fastapi import HTTPException
 from fastapi import status
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
 from firebase_admin import credentials
@@ -23,10 +26,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def verify_id_token(request: Request, call_next):
+    try:
+        authorization = request.headers["Authorization"]
+        user = auth.verify_id_token(authorization[7:])
+    except (KeyError, TypeError, UnicodeDecodeError, auth_utils.InvalidIdTokenError):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": "You must be logged in to make this request"}
+        )
+    if not user["admin"]:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"detail": "You must be an admin to make this request"}
+        )
+    return await call_next(request)
+
 @app.get("/")
 async def get_users(
         max_results: Union[int, None] = 1000,
-        page_token: Union[str, None] = None
+        page_token: Union[str, None] = None,
     ):
     """
     List up to max_results users.
