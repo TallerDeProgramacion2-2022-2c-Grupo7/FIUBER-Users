@@ -14,15 +14,19 @@ spec:
       containers:
       - image: $DOCKERHUB_USERNAME/$APP_NAME
         name: $APP_NAME
-        volumeMounts:
-        - mountPath: /app/firebase_credentials.json
-          name: firebase_credentials
-          readOnly: true
-      volumes:
-        - name: firebase_credentials
-          hostPath:
-            path: src/firebase_credentials.json
-            type: File
+        env:
+        - name: FIREBASE_PROJECT_ID
+          value: "$FIREBASE_PROJECT_ID"
+        - name: FIREBASE_PRIVATE_KEY_ID
+          value: "$FIREBASE_PRIVATE_KEY_ID"
+        - name: FIREBASE_PRIVATE_KEY
+          value: "$FIREBASE_PRIVATE_KEY"
+        - name: FIREBASE_CLIENT_EMAIL
+          value: "$FIREBASE_CLIENT_EMAIL"
+        - name: FIREBASE_CLIENT_ID
+          value: "$FIREBASE_CLIENT_ID"
+        - name: FIREBASE_CLIENT_X509_CERT_URL
+          value: "$FIREBASE_CLIENT_X509_CERT_URL"
 
 ---
 

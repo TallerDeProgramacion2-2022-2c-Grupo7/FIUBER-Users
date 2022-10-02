@@ -38,7 +38,15 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP_NAME }}:latest
       -
         name: Configure kubernetes.yml
-        run: sed -i "s/\$APP_NAME/${{ env.APP_NAME }}/g" ./kubernetes.yml && sed -i "s/\$DOCKERHUB_USERNAME/${{ secrets.DOCKERHUB_USERNAME }}/g" ./kubernetes.yml
+        run: >
+        sed -i "s/\$APP_NAME/${{ env.APP_NAME }}/g" ./kubernetes.yml
+        && sed -i "s/\$DOCKERHUB_USERNAME/${{ secrets.DOCKERHUB_USERNAME }}/g" ./kubernetes.yml
+        && sed -i "s/\$FIREBASE_PROJECT_ID/${{ env.FIREBASE_PROJECT_ID }}/g" ./kubernetes.yml
+        && sed -i "s/\$FIREBASE_PRIVATE_KEY_ID/${{ secrets.FIREBASE_PRIVATE_KEY_ID }}/g" ./kubernetes.yml
+        && sed -i "s/\$FIREBASE_PRIVATE_KEY/${{ secrets.FIREBASE_PRIVATE_KEY }}/g" ./kubernetes.yml
+        && sed -i "s/\$FIREBASE_CLIENT_EMAIL/${{ secrets.FIREBASE_CLIENT_EMAIL }}/g" ./kubernetes.yml
+        && sed -i "s/\$FIREBASE_CLIENT_ID/${{ secrets.FIREBASE_CLIENT_ID }}/g" ./kubernetes.yml
+        && sed -i "s/\$FIREBASE_CLIENT_X509_CERT_URL/${{ secrets.FIREBASE_CLIENT_X509_CERT_URL }}/g" ./kubernetes.yml
       -
         name: Debug
         run: cat ./kubernetes.yml

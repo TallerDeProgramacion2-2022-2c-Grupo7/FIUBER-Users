@@ -9,8 +9,9 @@ from firebase_admin import credentials
 from firebase_admin import auth
 from firebase_admin import _auth_utils as auth_utils
 from common.date_utils import get_datetime
+from common.firebase_credentials import admin_credentials
 
-firebase_credentials = credentials.Certificate(os.environ["FIREBASE_CREDENTIALS"])
+firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
 
 app = FastAPI()
