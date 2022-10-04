@@ -1,6 +1,7 @@
 import os
 from typing import Union
 from fastapi import FastAPI
+from fastapi import Header
 from fastapi import HTTPException
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,7 @@ from firebase_admin import auth
 from firebase_admin import _auth_utils as auth_utils
 from common.date_utils import get_datetime
 from common.firebase_credentials import admin_credentials
+from middlewares.id_token import IdTokenMiddleware
 
 firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
@@ -21,19 +23,22 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True
 )
+
+app.add_middleware(IdTokenMiddleware)
 
 @app.get("/")
 async def get_users(
         max_results: Union[int, None] = 1000,
-        page_token: Union[str, None] = None
+        page_token: Union[str, None] = None,
     ):
     """
     List up to max_results users.
     """
     page = auth.list_users(max_results=max_results, page_token=page_token)
     response = {
-        "users": [],
+        "result": [],
         "page_token": page.next_page_token
     }
     for user in page.users:
@@ -41,11 +46,11 @@ async def get_users(
             is_admin = user.custom_claims["admin"]
         except TypeError:
             is_admin = False
-        response["users"].append({
+        response["result"].append({
             "uid": user.uid,
             "email": user.email,
             "is_admin": is_admin,
-            "active": not user.disabled
+            "is_active": not user.disabled
         })
     return response    
 
@@ -68,12 +73,14 @@ async def get_user(uid: str):
     except TypeError:
         is_admin = False
     return {
-        "uid": user.uid,
-        "email": user.email,
-        "is_admin": is_admin,
-        "is_active": not user.disabled,
-        "creation_datetime": creation_datetime,
-        "last_sign_in_datetime": last_sign_in_datetime
+        "result": {
+            "uid": user.uid,
+            "email": user.email,
+            "is_admin": is_admin,
+            "is_active": not user.disabled,
+            "creation_datetime": creation_datetime,
+            "last_sign_in_datetime": last_sign_in_datetime
+        }
     }
 
 @app.patch("/{uid}")
