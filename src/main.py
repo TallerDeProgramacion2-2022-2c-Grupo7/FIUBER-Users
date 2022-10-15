@@ -85,7 +85,6 @@ async def get_user(uid: str):
         profile_data = profile.to_dict()
         user_info["first_name"] = profile_data["firstName"]
         user_info["last_name"] = profile_data["lastName"]
-        user_info["car_model"] = "Fiat 600"
     return {"result": user_info}
 
 @app.patch("/{uid}")
