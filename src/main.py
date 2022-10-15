@@ -66,22 +66,25 @@ async def get_user(uid: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    creation_datetime = get_datetime(user.user_metadata.creation_timestamp)
-    last_sign_in_datetime = get_datetime(user.user_metadata.last_sign_in_timestamp)
     try:
         is_admin = user.custom_claims["admin"]
     except TypeError:
         is_admin = False
-    return {
-        "result": {
-            "uid": user.uid,
-            "email": user.email,
-            "is_admin": is_admin,
-            "is_active": not user.disabled,
-            "creation_datetime": creation_datetime,
-            "last_sign_in_datetime": last_sign_in_datetime
-        }
+    user_info = {
+        "uid": user.uid,
+        "email": user.email,
+        "is_admin": is_admin,
+        "is_active": not user.disabled,
+        "creation_datetime": get_datetime(user.user_metadata.creation_timestamp),
+        "last_sign_in_datetime": get_datetime(user.user_metadata.last_sign_in_timestamp)
     }
+    profile = firestore.document(f"publicProfiles/{user.uid}").get()
+    if profile.exists:
+        profile_data = profile.to_dict()
+        user_info["first_name"] = profile_data["firstName"]
+        user_info["last_name"] = profile_data["lastName"]
+        user_info["car_model"] = "Fiat 600"
+    return {"result": user_info}
 
 @app.patch("/{uid}")
 async def patch_user(uid: str, active: bool):
