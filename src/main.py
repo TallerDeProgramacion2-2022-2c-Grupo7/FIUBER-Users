@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
+import firebase_admin.firestore
 from firebase_admin import credentials
 from firebase_admin import auth
 from firebase_admin import _auth_utils as auth_utils
@@ -15,6 +16,7 @@ from middlewares.id_token import IdTokenMiddleware
 
 firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
+firestore = firebase_admin.firestore.client()
 
 app = FastAPI()
 
