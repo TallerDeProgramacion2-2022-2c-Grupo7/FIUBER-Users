@@ -15,13 +15,7 @@ from common.firebase_credentials import admin_credentials
 from middlewares.id_token import IdTokenMiddleware
 from datadog import initialize, statsd
 
-options = {
-    'statsd_host':'dd-agent',
-    'statsd_port':8125
-}
-
-initialize(**options)
-
+initialize(statsd_host="dd-agent", statsd_port=8125)
 firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
 firestore = firebase_admin.firestore.client()
@@ -46,7 +40,6 @@ async def get_users(
     """
     List up to max_results users.
     """
-    statsd.event("An error occurred - FIUBER Users", "Error message", alert_type="error")
     page = auth.list_users(max_results=max_results, page_token=page_token)
     response = {
         "result": [],
