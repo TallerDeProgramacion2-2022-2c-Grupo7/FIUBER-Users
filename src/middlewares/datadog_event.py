@@ -13,11 +13,11 @@ class DatadogEventMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         try:
             response = await call_next(request)
-            send_event(f"GET {request.url} {response.status_code}", "", "info")
+            send_event(f"{request.method} {request.url} {response.status_code}", "", "info")
             return response
         except Exception as e:
             send_event(
-                f"GET {request.url} {status.HTTP_500_INTERNAL_SERVER_ERROR}",
+                f"{request.method} {request.url} {status.HTTP_500_INTERNAL_SERVER_ERROR}",
                 str(e),
                 "error"
             )

@@ -16,7 +16,7 @@ from middlewares.id_token import IdTokenMiddleware
 from middlewares.datadog_event import DatadogEventMiddleware
 from datadog import initialize, statsd
 
-initialize(statsd_host="dd-agent", statsd_port=8125)
+initialize(statsd_host="127.0.0.1", statsd_port=8125)
 firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
 firestore = firebase_admin.firestore.client()
