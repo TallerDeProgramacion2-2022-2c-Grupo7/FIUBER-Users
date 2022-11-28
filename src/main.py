@@ -13,6 +13,7 @@ from firebase_admin import _auth_utils as auth_utils
 from common.date_utils import get_datetime
 from common.firebase_credentials import admin_credentials
 from middlewares.id_token import IdTokenMiddleware
+from middlewares.datadog_event import DatadogEventMiddleware
 from datadog import initialize, statsd
 
 initialize(statsd_host="dd-agent", statsd_port=8125)
@@ -31,6 +32,8 @@ app.add_middleware(
 )
 
 app.add_middleware(IdTokenMiddleware)
+
+app.add_middleware(DatadogEventMiddleware)
 
 @app.get("/")
 async def get_users(
