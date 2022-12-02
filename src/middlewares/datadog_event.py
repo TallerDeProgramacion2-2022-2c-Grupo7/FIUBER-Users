@@ -5,7 +5,7 @@ from datadog import statsd
 
 def send_event(title: str, message: str, alert_type: str):
     try:
-        statsd.event(title, message, alert_type)
+        statsd.event(title, message, alert_type, tags=["app_name:fiuber-users"])
     except:
         pass
 
