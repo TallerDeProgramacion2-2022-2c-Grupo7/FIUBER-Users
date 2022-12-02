@@ -42,6 +42,7 @@ jobs:
           sed -i "s/\$APP_NAME/${{ env.APP_NAME }}/g" ./kubernetes.yml
           && sed -i "s/\$DOCKERHUB_USERNAME/${{ secrets.DOCKERHUB_USERNAME }}/g" ./kubernetes.yml
           && sed -i "s/\$FIREBASE_CREDENTIALS/${{ secrets.FIREBASE_CREDENTIALS }}/g" ./kubernetes.yml
+          && sed -i "s/\$DD_API_KEY/${{ secrets.DD_API_KEY }}/g" ./kubernetes.yml
       -
         name: Debug
         run: cat ./kubernetes.yml
