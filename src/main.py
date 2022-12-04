@@ -90,6 +90,15 @@ async def get_user(uid: str):
         profile_data = profile.to_dict()
         user_info["first_name"] = profile_data["firstName"]
         user_info["last_name"] = profile_data["lastName"]
+        try:
+            car_info = profile_data["car"]
+            user_info["car_model"] = \
+                  car_info["brand"] + " " \
+                + car_info["model"] + " " \
+                + f"({car_info['color']})"
+            user_info["car_plate"] = car_info["plate"]
+        except KeyError:
+            pass
     return {"result": user_info}
 
 @app.patch("/{uid}")
