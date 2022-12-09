@@ -13,7 +13,10 @@ from firebase_admin import _auth_utils as auth_utils
 from common.date_utils import get_datetime
 from common.firebase_credentials import admin_credentials
 from middlewares.id_token import IdTokenMiddleware
+from middlewares.datadog_event import DatadogEventMiddleware
+from datadog import initialize, statsd
 
+initialize(statsd_host="dd-agent", statsd_port=8125)
 firebase_credentials = credentials.Certificate(admin_credentials)
 firebase_admin.initialize_app(firebase_credentials)
 firestore = firebase_admin.firestore.client()
@@ -29,6 +32,8 @@ app.add_middleware(
 )
 
 app.add_middleware(IdTokenMiddleware)
+
+app.add_middleware(DatadogEventMiddleware)
 
 @app.get("/")
 async def get_users(
@@ -85,6 +90,15 @@ async def get_user(uid: str):
         profile_data = profile.to_dict()
         user_info["first_name"] = profile_data["firstName"]
         user_info["last_name"] = profile_data["lastName"]
+        try:
+            car_info = profile_data["car"]
+            user_info["car_model"] = \
+                  car_info["brand"] + " " \
+                + car_info["model"] + " " \
+                + f"({car_info['color']})"
+            user_info["car_plate"] = car_info["plate"]
+        except KeyError:
+            pass
     return {"result": user_info}
 
 @app.patch("/{uid}")
